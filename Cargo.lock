@@ -225,17 +225,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "docker-pg-setup"
-version = "0.1.0"
-dependencies = [
- "axum",
- "sqlx",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -718,6 +707,17 @@ name = "percent-encoding"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
+
+[[package]]
+name = "pg-server"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "pin-project"
