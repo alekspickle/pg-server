@@ -1,4 +1,6 @@
-//! ## Overview
+//! [![v](https://img.shields.io/badge/v-0.1.0-blueviolet)]()
+//!
+//!  ## Overview
 //!     Simple PostgreSQL server with simple interaction
 //!
 //! ## API:
@@ -17,7 +19,7 @@
 //! ```
 //!
 //! Test with curl:
-//! ```not_rust
+//! ```bash
 //!     curl --location -X POST 'localhost:8080/create-account' \
 //!     --header 'Content-Type: application/json' \
 //!     --header 'Content-Type: text/plain' \
