@@ -1,7 +1,7 @@
 //! [![v](https://img.shields.io/badge/v-0.1.0-blueviolet)]()
 //!
-//!  ## Overview
-//!     Simple PostgreSQL server with simple interaction
+//! ## Overview
+//! Simple PostgreSQL server with simple interaction
 //!
 //! ## API:
 //!  - create-account
@@ -37,47 +37,48 @@ use axum::{
 use sqlx::postgres::PgPoolOptions;
 use std::{env, net::SocketAddr, time::Duration};
 use tracing::{debug, info};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 mod handle;
+mod data;
+
+const DEFAULT_DB: &str = "postgres://postgres:password@localhost";
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     tracing_init();
 
-    let db_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://postgres:password@localhost".to_string());
-    info!(db=%db_url, "Using DB url");
+    let db_url = env::var("DATABASE_URL").unwrap_or_else(|_| DEFAULT_DB.to_string());
+    debug!(db=%db_url, "Using DB url");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect_timeout(Duration::from_secs(3))
         .connect(&db_url)
-        .await
-        .expect("can't connect to database");
+        .await?;
 
     // Configure router
     let app = Router::new()
         .route("/", post(handle::login))
         .route("/create-account", get(handle::create_account))
-        .route("/get-details", get(handle::get_details))
+        .route("/get-details/:email", get(handle::get_details))
         .with_state(pool);
 
     // Start hyper listener
     let addr = SocketAddr::from(([0, 0, 0, 0], 3030));
-    debug!("listening on {}", addr);
+    info!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .map_err(Into::into)
 }
 
+/// Init tracing subscriber
 fn tracing_init() {
+    let subscriber =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| "docker_pg_server=debug".into());
     tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "docker_pg_server=debug".into()),
-        )
+        .with(subscriber)
         .with(tracing_subscriber::fmt::layer())
         .init()
 }
