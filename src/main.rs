@@ -59,7 +59,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Configure router
     let app = Router::new()
-        .route("/", post(handle::login))
+        // .route("/", post(handle::login))
         .route("/create-account", get(handle::create_account))
         .route("/get-details/:email", get(handle::get_details))
         .with_state(pool);

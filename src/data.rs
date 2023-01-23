@@ -1,4 +1,5 @@
 use bcrypt::{hash, DEFAULT_COST};
+use serde::Deserialize;
 use sqlx::{postgres::PgRow, Row};
 use std::fmt;
 
@@ -43,13 +44,13 @@ pub(crate) fn hash_password(password: &str) -> Result<String, bcrypt::BcryptErro
     hash(password, DEFAULT_COST)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub(crate) struct AccountLogin {
     pub(crate) email: String,
     pub(crate) pass: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub(crate) struct Account {
     pub(crate) email: String,
     pub(crate) car: String,
