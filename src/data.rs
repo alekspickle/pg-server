@@ -50,6 +50,12 @@ pub(crate) struct AccountLogin {
     pub(crate) pass: String,
 }
 
+impl fmt::Display for AccountLogin {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.email)
+    }
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub(crate) struct Account {
     pub(crate) email: String,
@@ -58,11 +64,6 @@ pub(crate) struct Account {
     pub(crate) pass: String,
 }
 
-impl fmt::Display for AccountLogin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.email)
-    }
-}
 
 impl fmt::Display for Account {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

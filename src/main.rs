@@ -39,8 +39,8 @@ use std::{env, net::SocketAddr, time::Duration};
 use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-mod handle;
 mod data;
+mod handle;
 
 const DEFAULT_DB: &str = "postgres://postgres:password@localhost";
 
@@ -56,10 +56,14 @@ async fn main() -> anyhow::Result<()> {
         .connect_timeout(Duration::from_secs(3))
         .connect(&db_url)
         .await?;
+    // Create table
+    sqlx::query(&data::queries::create_table())
+        .execute(&pool)
+        .await?;
 
     // Configure router
     let app = Router::new()
-        // .route("/", post(handle::login))
+        .route("/", post(handle::login))
         .route("/create-account", get(handle::create_account))
         .route("/get-details/:email", get(handle::get_details))
         .with_state(pool);

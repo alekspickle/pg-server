@@ -6,26 +6,31 @@ use tracing::{debug, info};
 /// Create user.
 ///
 /// Extract json data, hash the password and insert the new user's data
-#[debug_handler(body = Json<Account>)]
+#[debug_handler]
 pub(crate) async fn create_account(
     State(pool): State<PgPool>,
     Json(account): Json<Account>,
 ) -> Result<String, (StatusCode, String)> {
-    // let hashed =
-    //     data::hash_password(&account.pass).map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
+    let hashed =
+        data::hash_password(&account.pass).map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
+    debug!(hashed=%hashed, "Hashed pass");
 
-    // sqlx::query(&data::queries::create_user())
-    //     .bind(account.car)
-    //     .bind(&account.email)
-    //     .bind(account.bank_details)
-    //     .bind(hashed)
-    //     .execute(&pool)
-    //     .await
-    //     .map_err(internal_error);
+    let s = sqlx::query(&data::queries::create_user())
+        .bind(account.car)
+        .bind(&account.email)
+        .bind(account.bank_details)
+        .bind(hashed)
+        .execute(&pool)
+        .await
+        .map_err(internal_error)?;
+
+    let s = s.rows_affected();
+
+    info!(s=%s, "Rows affected");
 
     Ok(format!(
-        "Account for {{}} successfully created!",
-        // account.email
+        "Account for {} successfully created!",
+        account.email
     ))
 }
 
