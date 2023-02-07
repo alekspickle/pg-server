@@ -1,21 +1,22 @@
 use bcrypt::{hash, DEFAULT_COST};
 use serde::Deserialize;
-use sqlx::{postgres::PgRow, Row};
 use std::fmt;
 
 pub(crate) const TABLE_NAME: &str = "star_wars_car_warranty_office";
 
 pub mod queries {
     pub(crate) fn create_table() -> String {
-        "
-            CREATE TABLE IF NOT EXISTS star_wars_car_warranty_office (
+        format!(
+            "
+            CREATE TABLE IF NOT EXISTS {} (
                 car varchar(255),
                 email varchar(255),
                 bank_details varchar(255),
                 password varchar(255)
             )
-        "
-        .to_string()
+        ",
+            super::TABLE_NAME
+        )
     }
 
     pub(crate) fn create_user() -> String {
@@ -63,7 +64,6 @@ pub(crate) struct Account {
     pub(crate) bank_details: String,
     pub(crate) pass: String,
 }
-
 
 impl fmt::Display for Account {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
