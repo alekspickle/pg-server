@@ -2,7 +2,7 @@
 # docker build -t pg-server .
 # docker run -dp 8080:3030 --rm --name server pg-server
 
-FROM rust:1.66 as build
+FROM rust:1.67 as build
 
 # create a new empty shell project
 RUN USER=root cargo new --bin pg-server
@@ -20,7 +20,6 @@ RUN rm src/*.rs
 COPY ./src ./src
 
 # build for release
-RUN rm ./target/release/deps/pg-server*
 RUN cargo build --release
 
 # our final slim base

@@ -35,45 +35,45 @@ use axum::{
     Router,
 };
 use sqlx::postgres::PgPoolOptions;
-use std::{env, net::SocketAddr, time::Duration};
+use std::{env, net};
 use tracing::{debug, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-mod data;
-mod handle;
+pub mod data;
+pub mod handle;
 
-const DEFAULT_DB: &str = "postgres://postgres:password@localhost:5434";
+pub const DEFAULT_DB: &str = "postgres://postgres:password@localhost:5432";
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    tracing_init();
+// #[tokio::main]
+// async fn main() -> anyhow::Result<()> {
+//     tracing_init();
 
-    let db_url = env::var("DATABASE_URL").unwrap_or_else(|_| DEFAULT_DB.to_string());
-    debug!(db=%db_url, "Using DB url");
-    
-    let pool = PgPoolOptions::new().connect(&db_url).await?;
-    debug!(pool=?pool, "Pool");
+//     let db_url = env::var("DATABASE_URL").unwrap_or_else(|_| DEFAULT_DB.to_string());
+//     debug!(db=%db_url, "Using DB url");
 
-    // Create table
-    sqlx::query(&data::queries::create_table())
-        .execute(&pool)
-        .await?;
+//     let pool = PgPoolOptions::new().connect(&db_url).await?;
+//     debug!(pool=?pool, "Pool");
 
-    // Configure router
-    let app = Router::new()
-        .route("/", post(handle::login))
-        .route("/create-account", get(handle::create_account))
-        .route("/get-details/:email", get(handle::get_details))
-        .with_state(pool);
+//     // Create table
+//     sqlx::query(&data::queries::create_table())
+//         .execute(&pool)
+//         .await?;
 
-    // Start hyper listener
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3030));
-    info!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .map_err(Into::into)
-}
+//     // Configure router
+//     let app = Router::new()
+//         .route("/", post(handle::login))
+//         .route("/create-account", get(handle::create_account))
+//         .route("/get-details/:email", get(handle::get_details))
+//         .with_state(pool);
+
+//     // Start hyper listener
+//     let addr = net::SocketAddr::from(([0, 0, 0, 0], 3030));
+//     info!("listening on {}", addr);
+//     axum::Server::bind(&addr)
+//         .serve(app.into_make_service())
+//         .await
+//         .map_err(Into::into)
+// }
 
 /// Init tracing subscriber
 fn tracing_init() {
