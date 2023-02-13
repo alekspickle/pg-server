@@ -42,7 +42,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 mod data;
 mod handle;
 
-const DEFAULT_DB: &str = "postgres://postgres:password@localhost";
+const DEFAULT_DB: &str = "postgres://postgres:password@localhost:5434";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -50,12 +50,10 @@ async fn main() -> anyhow::Result<()> {
 
     let db_url = env::var("DATABASE_URL").unwrap_or_else(|_| DEFAULT_DB.to_string());
     debug!(db=%db_url, "Using DB url");
+    
+    let pool = PgPoolOptions::new().connect(&db_url).await?;
+    debug!(pool=?pool, "Pool");
 
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect_timeout(Duration::from_secs(3))
-        .connect(&db_url)
-        .await?;
     // Create table
     sqlx::query(&data::queries::create_table())
         .execute(&pool)
